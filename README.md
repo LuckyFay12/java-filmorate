@@ -1,2 +1,2 @@
 # java-filmorate
-Template repository for Filmorate project.
+Создание каркаса Spring Boot приложения Filmorate.
