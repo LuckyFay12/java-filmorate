@@ -17,7 +17,7 @@ import java.util.Map;
 public class FilmController {
 
     private Map<Long, Film> idToFilm = new HashMap<>();
-    private Long idCounter = 1l;
+    private Long idCounter = 1L;
 
     @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) {

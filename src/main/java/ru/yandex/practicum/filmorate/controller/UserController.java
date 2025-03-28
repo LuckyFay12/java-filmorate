@@ -17,7 +17,7 @@ import java.util.Map;
 public class UserController {
 
     private Map<Long, User> idToUser = new HashMap<>();
-    private Long idCounter = 1l;
+    private Long idCounter = 1L;
 
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
