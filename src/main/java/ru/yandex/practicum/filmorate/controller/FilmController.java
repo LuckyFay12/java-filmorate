@@ -35,7 +35,7 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film updateFilm(@RequestBody Film film) {
+    public Film updateFilm(@Valid @RequestBody Film film) {
         Long id = film.getId();
         log.info("Получен HTTP-запрос на обновление фильма с id {}", id);
         if (!idToFilm.containsKey(id)) {

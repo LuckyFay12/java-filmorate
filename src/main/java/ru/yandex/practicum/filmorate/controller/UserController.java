@@ -22,6 +22,9 @@ public class UserController {
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
         log.info("Получен HTTP-запрос на создание пользователя: {}", user);
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
         user.setId(idCounter++);
         idToUser.put(user.getId(), user);
         log.info("Успешно обработан HTTP-запрос на создание пользователя: {}", user);
@@ -35,13 +38,16 @@ public class UserController {
     }
 
     @PutMapping
-    public User updateUser(@RequestBody User user) {
+    public User updateUser(@Valid @RequestBody User user) {
         Long id = user.getId();
         log.info("Получен HTTP-запрос на обновление пользователя с id {}", id);
         if (!idToUser.containsKey(id)) {
             String errorMessage = String.format("Пользователь с id %d не найден", id);
             log.error(errorMessage);
             throw new UserNotFoundException(errorMessage);
+        }
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
         }
         idToUser.put(user.getId(), user);
         log.info("Успешно обработан HTTP-запрос на обновление пользователя с id {}", id);
