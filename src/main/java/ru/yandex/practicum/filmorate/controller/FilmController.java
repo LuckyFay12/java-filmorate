@@ -47,6 +47,4 @@ public class FilmController {
         log.info("Успешно обработан HTTP-запрос на обновление пользователя с id {}", id);
         return film;
     }
-
-
 }
