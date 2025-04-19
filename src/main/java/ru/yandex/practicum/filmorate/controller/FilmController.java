@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.util.List;
 
@@ -15,13 +14,12 @@ import java.util.List;
 @RequestMapping("/films")
 @RequiredArgsConstructor
 public class FilmController {
-    private final FilmStorage filmStorage;
     private final FilmService filmService;
 
     @PostMapping
     public Film add(@Valid @RequestBody Film film) {
         log.info("Получен HTTP-запрос на добавление фильма {}", film);
-        Film createdFilm = filmStorage.add(film);
+        Film createdFilm = filmService.add(film);
         log.info("Успешно обработан HTTP-запрос на добавление фильма {}", film);
         return createdFilm;
     }
@@ -29,13 +27,13 @@ public class FilmController {
     @GetMapping
     public List<Film> getAllFilms() {
         log.info("Получен HTTP-запрос на получение всех фильмов");
-        return filmStorage.getAll();
+        return filmService.getAll();
     }
 
     @PutMapping
     public Film update(@Valid @RequestBody Film film) {
         log.info("Получен HTTP-запрос на обновление фильма с id {}", film.getId());
-        Film updatedFilm = filmStorage.update(film);
+        Film updatedFilm = filmService.update(film);
         log.info("Успешно обработан HTTP-запрос на обновление фильма с id {}", film.getId());
         return updatedFilm;
     }
@@ -43,7 +41,7 @@ public class FilmController {
     @GetMapping("/{id}")
     public Film getById(@PathVariable Long id) {
         log.info("Получен HTTP-запрос на получение фильма по id: {}", id);
-        Film film = filmStorage.getById(id);
+        Film film = filmService.getById(id);
         log.debug("Найденный фильм: {}", film);
         return film;
     }

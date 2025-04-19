@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
 
@@ -15,13 +14,12 @@ import java.util.List;
 @RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
-    private final UserStorage userStorage;
     private final UserService userService;
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
         log.info("Получен HTTP-запрос на создание пользователя: {}", user);
-        User createdUser = userStorage.create(user);
+        User createdUser = userService.create(user);
         log.info("Успешно обработан HTTP-запрос на создание пользователя: {}", user);
         return createdUser;
     }
@@ -29,13 +27,13 @@ public class UserController {
     @GetMapping
     public List<User> getAll() {
         log.info("Получен HTTP-запрос на получение всех пользователей");
-        return userStorage.getAll();
+        return userService.getAll();
     }
 
     @GetMapping("/{id}")
     public User getById(@PathVariable Long id) {
         log.info("Получен HTTP-запрос на получение пользователя по id: {}", id);
-        User user = userStorage.getById(id);
+        User user = userService.getById(id);
         log.debug("Найденный пользователь: {}", user);
         return user;
     }
@@ -43,7 +41,7 @@ public class UserController {
     @PutMapping
     public User update(@Valid @RequestBody User user) {
         log.info("Получен HTTP-запрос на обновление пользователя с id {}", user.getId());
-        User updatedUser = userStorage.update(user);
+        User updatedUser = userService.update(user);
         log.info("Успешно обработан HTTP-запрос на обновление пользователя с id {}", user.getId());
         return updatedUser;
     }

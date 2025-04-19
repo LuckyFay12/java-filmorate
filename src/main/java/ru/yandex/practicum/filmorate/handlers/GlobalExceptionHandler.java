@@ -1,14 +1,17 @@
 package ru.yandex.practicum.filmorate.handlers;
 
-import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.ApiError;
+import org.springframework.validation.FieldError;
+
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestControllerAdvice
@@ -34,12 +37,25 @@ public class GlobalExceptionHandler {
                 .build();
     }
 
-    @ExceptionHandler(ValidationException.class)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiError handleValidationException(ValidationException e) {
-        log.warn("Ошибка валидации: {}", e.getMessage());
+    public ApiError handleValidationException(MethodArgumentNotValidException e) {
+        String message = e.getBindingResult().getFieldErrors().stream()
+                .map(FieldError::getDefaultMessage)
+                .collect(Collectors.joining(", "));
+        log.warn("Ошибка валидации: {}", message);
         return ApiError.builder()
                 .errorCode(HttpStatus.BAD_REQUEST.value())
+                .description(message)
+                .build();
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ApiError handleException(Exception e) {
+        log.error("Ошибка: {}", e.getMessage());
+        return ApiError.builder()
+                .errorCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .description(e.getMessage())
                 .build();
     }
