@@ -5,7 +5,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dto.FilmShortInfoDto;
 import ru.yandex.practicum.filmorate.mapper.FilmShortInfoDtoMapper;
-import ru.yandex.practicum.filmorate.storage.mapper.FilmResultSetExtractor;
 
 import java.util.List;
 
