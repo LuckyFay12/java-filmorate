@@ -6,8 +6,11 @@ import jakarta.validation.Validator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.RatingMPA;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,7 +26,9 @@ public class FilmValidationTest {
 
     @Test
     void testValidFilm() {
-        Film film = new Film(1L, "testName", "testDescription", LocalDate.of(2025, 2, 21), 60);
+        RatingMPA mpa = new RatingMPA(1L, "G");
+        Set<Genre> genres = new HashSet<>(1);
+        Film film = new Film(1L, "testName", "testDescription", LocalDate.of(2025, 2, 21), 60, mpa, genres);
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
 
         assertTrue(violations.isEmpty(), "Ошибок валидации не должно быть");
@@ -31,7 +36,9 @@ public class FilmValidationTest {
 
     @Test
     void nameShouldNotBeBlank() {
-        Film film = new Film(1L, "", "testDescription", LocalDate.of(2025, 2, 21), 60);
+        RatingMPA mpa = new RatingMPA(1L, "G");
+        Set<Genre> genres = new HashSet<>(1);
+        Film film = new Film(1L, "", "testDescription", LocalDate.of(2025, 2, 21), 60, mpa, genres);
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
 
         assertEquals(1, violations.size(), "Должна быть одна ошибка валидации");
@@ -41,7 +48,9 @@ public class FilmValidationTest {
     @Test
     void descriptionShouldBeNoMoreThan200Characters() {
         String longDescription = "a".repeat(201);
-        Film film = new Film(1L, "testName", longDescription, LocalDate.of(2025, 2, 21), 60);
+        RatingMPA mpa = new RatingMPA(1L, "G");
+        Set<Genre> genres = new HashSet<>(1);
+        Film film = new Film(1L, "testName", longDescription, LocalDate.of(2025, 2, 21), 60, mpa, genres);
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
 
         assertEquals(1, violations.size(), "Должна быть одна ошибка валидации");
@@ -50,7 +59,9 @@ public class FilmValidationTest {
 
     @Test
     void releaseDateBeforeFirstFilmInHistoryShouldFailValidation() {
-        Film film = new Film(1L, "testName", "testDescription", LocalDate.of(1895, 12, 27), 60);
+        RatingMPA mpa = new RatingMPA(1L, "G");
+        Set<Genre> genres = new HashSet<>(1);
+        Film film = new Film(1L, "testName", "testDescription", LocalDate.of(1895, 12, 27), 60, mpa, genres);
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
 
         assertEquals(1, violations.size(), "Должна быть одна ошибка валидации");
@@ -59,7 +70,9 @@ public class FilmValidationTest {
 
     @Test
     void durationShouldBePositiveNumber() {
-        Film film = new Film(1L, "testName", "testDescription", LocalDate.of(2024, 12, 27), -60);
+        RatingMPA mpa = new RatingMPA(1L, "G");
+        Set<Genre> genres = new HashSet<>(1);
+        Film film = new Film(1L, "testName", "testDescription", LocalDate.of(2024, 12, 27), -60, mpa, genres);
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
 
         assertEquals(1, violations.size(), "Должна быть одна ошибка валидации");

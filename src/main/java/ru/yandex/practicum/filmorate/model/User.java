@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
+@Builder
 @Data
 @NoArgsConstructor
 public class User {
@@ -20,8 +21,6 @@ public class User {
     private String email;
     @PastOrPresent(message = "День рождение не может быть в будущем")
     private LocalDate birthday;
-
-    private final Set<Long> friends = new HashSet<>();
 
     public User(Long id, String name, String login, String email, LocalDate birthday) {
         this.id = id;

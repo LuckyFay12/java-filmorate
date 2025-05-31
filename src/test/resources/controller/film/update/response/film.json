@@ -1,0 +1,12 @@
+{
+  "id": 1,
+  "name": "Inception",
+  "description": "Фильм про сны",
+  "releaseDate": "2010-07-22",
+  "duration": 120,
+  "mpa": {
+    "id": 1,
+    "name": "G"
+  },
+  "genres": []
+}
