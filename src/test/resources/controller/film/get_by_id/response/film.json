@@ -1,0 +1,12 @@
+{
+  "id": 1,
+  "name": "Начало",
+  "description": "Фильм про сны",
+  "releaseDate": "2020-11-12",
+  "duration": 120,
+  "mpa": {
+    "id": 1,
+    "name": "G"
+  },
+  "genres": []
+}

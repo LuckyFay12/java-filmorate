@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.dto.FilmShortInfoDto;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -59,7 +60,7 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopularFilm(@RequestParam(defaultValue = "10") int count) {
+    public List<FilmShortInfoDto> getPopularFilm(@RequestParam(defaultValue = "10") int count) {
         log.info("Получен HTTP-запрос на список популярных фильмов, число={}", count);
         return filmService.getPopularFilm(count);
     }

@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exception.GenreNotFoundException;
+import ru.yandex.practicum.filmorate.exception.RatingNotFoundException;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.ApiError;
 import org.springframework.validation.FieldError;
@@ -21,6 +23,26 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ApiError handleUserNotFound(UserNotFoundException e) {
         log.debug("Пользователь не найден: {}", e.getMessage(), e);
+        return ApiError.builder()
+                .errorCode(HttpStatus.NOT_FOUND.value())
+                .description(e.getMessage())
+                .build();
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiError handleGenreNotFound(GenreNotFoundException e) {
+        log.debug("Жанр не найден: {}", e.getMessage(), e);
+        return ApiError.builder()
+                .errorCode(HttpStatus.NOT_FOUND.value())
+                .description(e.getMessage())
+                .build();
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiError handleRatingNotFound(RatingNotFoundException e) {
+        log.debug("Рейтинг не найден: {}", e.getMessage(), e);
         return ApiError.builder()
                 .errorCode(HttpStatus.NOT_FOUND.value())
                 .description(e.getMessage())
