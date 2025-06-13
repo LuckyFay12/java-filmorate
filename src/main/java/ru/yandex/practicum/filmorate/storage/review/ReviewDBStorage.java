@@ -54,6 +54,7 @@ public class ReviewDBStorage implements ReviewStorage {
             return ps;
         }, keyHolder);
         review.setReviewId(Objects.requireNonNull(keyHolder.getKey()).longValue());
+        // задаем начальное значение полезности
         review.setUseful(0);
         return review;
     }
@@ -75,6 +76,7 @@ public class ReviewDBStorage implements ReviewStorage {
     }
 
     private void updateUseful(long reviewId) {
+        // +1 за лайк, -1 за дизлайк, 0 если нет лайков или дизлайков
         String sql = """
                 SELECT
                 SUM(
@@ -123,6 +125,7 @@ public class ReviewDBStorage implements ReviewStorage {
     }
 
     public Review deleteDislikeReview(long id, long userId) {
+        // Переиспользуем метод deleteLikeReview, так как логика удаления лайка и дизлайка одинаковая
         return deleteLikeReview(id, userId);
     }
 }
