@@ -6,10 +6,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
-import ru.yandex.practicum.filmorate.exception.GenreNotFoundException;
-import ru.yandex.practicum.filmorate.exception.RatingNotFoundException;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
+import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.model.ApiError;
 import org.springframework.validation.FieldError;
 
@@ -49,7 +46,7 @@ public class GlobalExceptionHandler {
                 .build();
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(FilmNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ApiError handleFilmNotFound(FilmNotFoundException e) {
         log.debug("Фильм не найден: {}", e.getMessage(), e);
@@ -78,6 +75,16 @@ public class GlobalExceptionHandler {
         log.error("Ошибка: {}", e.getMessage());
         return ApiError.builder()
                 .errorCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .description(e.getMessage())
+                .build();
+    }
+
+    @ExceptionHandler(ReviewNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiError handleReviewNotFound(ReviewNotFoundException e) {
+        log.debug("Отзыв не найден: {}", e.getMessage(), e);
+        return ApiError.builder()
+                .errorCode(HttpStatus.NOT_FOUND.value())
                 .description(e.getMessage())
                 .build();
     }
