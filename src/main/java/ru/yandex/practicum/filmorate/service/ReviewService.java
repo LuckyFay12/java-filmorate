@@ -20,9 +20,9 @@ public class ReviewService {
     private final UserStorage userStorage;
     private final FilmDbStorage filmStorage;
 
-    private final static String REVIEW_ID_NULL_MESSAGE = "reviewId не может быть null";
-    private final static String FILM_ID_NULL_MESSAGE = "filmId не может быть null";
-    private final static String USER_ID_NULL_MESSAGE = "userId не может быть null";
+    private static final String REVIEW_ID_NULL_MESSAGE = "reviewId не может быть null";
+    private static final String FILM_ID_NULL_MESSAGE = "filmId не может быть null";
+    private static final String USER_ID_NULL_MESSAGE = "userId не может быть null";
 
     public Review create(Review review) {
         validateNotNull(review.getFilmId(), FILM_ID_NULL_MESSAGE);
