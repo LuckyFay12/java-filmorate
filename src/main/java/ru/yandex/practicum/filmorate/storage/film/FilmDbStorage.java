@@ -91,8 +91,6 @@ public class FilmDbStorage implements FilmStorage {
                 "LEFT JOIN film_genres fg ON fg.film_id = f.id " +
                 "LEFT JOIN genres g ON g.genre_id = fg.genre_id " +
                 "WHERE f.id = ?";
-//        List<Film> films = jdbcTemplate.query(sql, filmResultSetExtractor, id);
-//        return films.stream().findFirst().orElse(null);
         List<Film> films = jdbcTemplate.query(sql, filmResultSetExtractor, id);
         assert films != null;
         return films.stream()
