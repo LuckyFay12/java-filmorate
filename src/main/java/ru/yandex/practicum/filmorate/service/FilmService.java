@@ -1,14 +1,15 @@
 package ru.yandex.practicum.filmorate.service;
 
+import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.FilmShortInfoDto;
 import ru.yandex.practicum.filmorate.exception.GenreNotFoundException;
 import ru.yandex.practicum.filmorate.exception.RatingNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
@@ -20,11 +21,11 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class FilmService {
-    @Qualifier("filmDbStorage")
     private final FilmStorage filmStorage;
     private final GenreStorage genreStorage;
     private final RatingStorage ratingStorage;
     private final LikeStorage likeStorage;
+    private final DirectorStorage directorStorage;
 
     public Film add(Film film) {
         ratingStorage.getRatingById(film.getMpa().getId())
@@ -60,5 +61,13 @@ public class FilmService {
 
     public List<FilmShortInfoDto> getPopularFilm(int count) {
         return likeStorage.getPopularFilm(count);
+    }
+
+    public List<Film> getFilmsByDirectorId(Long directorId, String sortBy) {
+        directorStorage.getById(directorId);
+        if (!sortBy.equals("year") && !sortBy.equals("likes")) {
+            throw new ValidationException("SortBy должен быть year или likes");
+        }
+        return filmStorage.getFilmsByDirectorId(directorId, sortBy);
     }
 }
