@@ -1,3 +1,4 @@
+
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(255),
@@ -33,6 +34,17 @@ CREATE TABLE IF NOT EXISTS film_genres (
     PRIMARY KEY (film_id, genre_id)
 );
 
+CREATE TABLE IF NOT EXISTS directors (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name VARCHAR(100)
+);
+
+CREATE TABLE IF NOT EXISTS film_directors (
+    film_id BIGINT REFERENCES films(id) ON DELETE CASCADE,
+    director_id BIGINT REFERENCES directors(id) ON DELETE CASCADE,
+    PRIMARY KEY (film_id, director_id)
+);
+
 CREATE TABLE IF NOT EXISTS friends (
     user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
     friend_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
@@ -45,3 +57,4 @@ CREATE TABLE IF NOT EXISTS likes (
     user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     PRIMARY KEY (film_id, user_id)
 );
+

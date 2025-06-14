@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -15,7 +14,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    @Qualifier("userDbStorage")
     private final UserStorage userStorage;
     private final FriendStorage friendsStorage;
 

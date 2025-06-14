@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.RatingMPA;
@@ -20,7 +21,7 @@ public class FilmResultSetExtractor implements ResultSetExtractor<List<Film>> {
 
     @Override
     public List<Film> extractData(ResultSet rs) throws SQLException, DataAccessException {
-        Map<Long, Film> filmMap = new HashMap<>();
+        Map<Long, Film> filmMap = new LinkedHashMap<>();
 
         while (rs.next()) {
             Long currentFilmId = rs.getLong("id");
@@ -42,6 +43,12 @@ public class FilmResultSetExtractor implements ResultSetExtractor<List<Film>> {
                 String genreName = rs.getString("genre_name");
                 if (genreName != null) {
                     film.getGenres().add(new Genre(rs.getLong("genre_id"), genreName));
+                }
+            }
+            if (rs.getLong("director_id") != 0 && !rs.wasNull()) {
+                String directorName = rs.getString("director_name");
+                if (directorName != null) {
+                    film.getDirectors().add(new Director(rs.getLong("director_id"), directorName));
                 }
             }
         }
