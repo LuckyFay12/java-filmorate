@@ -130,7 +130,10 @@ public class FilmDbStorage implements FilmStorage {
                 "LEFT JOIN directors d ON d.id = fd.director_id " +
                 "WHERE f.id = ?";
         List<Film> films = jdbcTemplate.query(sql, filmResultSetExtractor, id);
-        return films.stream().findFirst().orElse(null);
+        assert films != null;
+        return films.stream()
+                .findFirst()
+                .orElseThrow(() -> new FilmNotFoundException("Фильм с id=" + id + " не найден"));
     }
 
     @Override

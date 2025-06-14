@@ -60,7 +60,7 @@ public class GlobalExceptionHandler {
                 .build();
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(FilmNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ApiError handleFilmNotFound(FilmNotFoundException e) {
         log.debug("Фильм не найден: {}", e.getMessage(), e);
@@ -89,6 +89,16 @@ public class GlobalExceptionHandler {
         log.error("Ошибка: {}", e.getMessage());
         return ApiError.builder()
                 .errorCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .description(e.getMessage())
+                .build();
+    }
+
+    @ExceptionHandler(ReviewNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiError handleReviewNotFound(ReviewNotFoundException e) {
+        log.debug("Отзыв не найден: {}", e.getMessage(), e);
+        return ApiError.builder()
+                .errorCode(HttpStatus.NOT_FOUND.value())
                 .description(e.getMessage())
                 .build();
     }
