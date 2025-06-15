@@ -14,4 +14,6 @@ public interface FilmStorage {
     Film getById(Long id);
 
     List<Film> getFilmsByDirectorId(Long directorId, String sortedBy);
+
+    List<Film> getFilmsByParam(String queryLowerCase, boolean searchByTitle, boolean searchByDirector);
 }

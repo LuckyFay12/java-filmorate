@@ -4,13 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.exception.DirectorNotFoundException;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.mapper.FilmResultSetExtractor;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -138,12 +138,6 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getFilmsByDirectorId(Long directorId, String sortBy) {
-        String checkDirectorSql = "SELECT COUNT(*) FROM directors WHERE id = ?";
-        Integer count = jdbcTemplate.queryForObject(checkDirectorSql, Integer.class, directorId);
-
-        if (count == null || count == 0) {
-            throw new DirectorNotFoundException("Режиссер с id " + directorId + " не найден");
-        }
         String sql;
         if (sortBy.equals("year")) {
             sql = "SELECT f.*, r.name AS mpa_name, " +
@@ -175,5 +169,45 @@ public class FilmDbStorage implements FilmStorage {
         }
         List<Film> films = jdbcTemplate.query(sql, filmResultSetExtractor, directorId);
         return films != null ? films : Collections.emptyList();
+    }
+
+    @Override
+    public List<Film> getFilmsByParam(String queryLowerCase, boolean searchByTitle, boolean searchByDirector) {
+        List<Object> params = new ArrayList<>();
+        if (searchByTitle) {
+            params.add(queryLowerCase);
+        }
+        if (searchByDirector) {
+            params.add(queryLowerCase);
+        }
+        String sql = """
+                SELECT f.*, r.name AS mpa_name,
+                g.genre_id, g.name AS genre_name,
+                d.id AS director_id, d.name AS director_name,
+                COUNT(l.user_id) AS likes_count
+                FROM films f
+                LEFT JOIN mpa_ratings r ON r.mpa_id = f.mpa_id
+                LEFT JOIN film_genres fg ON fg.film_id = f.id
+                LEFT JOIN genres g ON g.genre_id = fg.genre_id
+                LEFT JOIN film_directors fd ON fd.film_id = f.id
+                LEFT JOIN directors d ON d.id = fd.director_id
+                LEFT JOIN likes l ON f.id = l.film_id
+                WHERE %s
+                GROUP BY f.id, r.mpa_id, g.genre_id, d.id
+                ORDER BY likes_count DESC
+                """.formatted(buildWhere(searchByTitle, searchByDirector));
+
+        return jdbcTemplate.query(sql, filmResultSetExtractor, params.toArray());
+    }
+
+    private String buildWhere(boolean searchByTitle, boolean searchByDirector) {
+        List<String> conditions = new ArrayList<>();
+        if (searchByTitle) {
+            conditions.add("LOWER(f.name) LIKE ?");
+        }
+        if (searchByDirector) {
+            conditions.add("LOWER(d.name) LIKE ?");
+        }
+        return String.join(" OR ", conditions);
     }
 }

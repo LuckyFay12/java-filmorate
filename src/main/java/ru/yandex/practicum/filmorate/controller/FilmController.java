@@ -70,4 +70,10 @@ public class FilmController {
         log.info("Получен HTTP-запрос на получение списка фильмов режиссёра с id {}, сортированных по {}", directorId, sortBy);
         return filmService.getFilmsByDirectorId(directorId, sortBy);
     }
+
+    @GetMapping("/search")
+    public List<Film> getFilmsByParam(@RequestParam String query, @RequestParam(defaultValue = "title") List<String> by) {
+        log.info("Поиск фильмов по запросу: {}", query);
+        return filmService.getFilmsByParam(query, by);
+    }
 }
