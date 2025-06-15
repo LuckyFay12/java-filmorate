@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.FilmShortInfoDto;
+import ru.yandex.practicum.filmorate.exception.DirectorNotFoundException;
 import ru.yandex.practicum.filmorate.exception.GenreNotFoundException;
 import ru.yandex.practicum.filmorate.exception.RatingNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -16,6 +17,7 @@ import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.ratingMPA.RatingStorage;
 
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -64,10 +66,22 @@ public class FilmService {
     }
 
     public List<Film> getFilmsByDirectorId(Long directorId, String sortBy) {
-        directorStorage.getById(directorId);
+        directorStorage.getById(directorId)
+                .orElseThrow(() -> new DirectorNotFoundException("Режиссёр с id " + directorId + " не найден"));
         if (!sortBy.equals("year") && !sortBy.equals("likes")) {
             throw new ValidationException("SortBy должен быть year или likes");
         }
         return filmStorage.getFilmsByDirectorId(directorId, sortBy);
+    }
+
+    public List<Film> getFilmsBySearch(String query, List<String> by) {
+        Set<String> validBy = Set.of("title", "director");
+        if (by.stream().anyMatch(element -> !validBy.contains(element))) {
+            throw new IllegalArgumentException("Некорректные параметры запроса, должно быть: title и(или) director");
+        }
+        String queryLowerCase = "%" + query.toLowerCase() + "%";
+        boolean searchByTitle = by.contains("title");
+        boolean searchByDirector = by.contains("director");
+        return filmStorage.getFilmsBySearch(queryLowerCase, searchByTitle, searchByDirector);
     }
 }
