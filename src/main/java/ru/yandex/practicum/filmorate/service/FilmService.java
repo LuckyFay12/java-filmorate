@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.dto.FilmShortInfoDto;
 import ru.yandex.practicum.filmorate.exception.DirectorNotFoundException;
 import ru.yandex.practicum.filmorate.exception.GenreNotFoundException;
 import ru.yandex.practicum.filmorate.exception.RatingNotFoundException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
@@ -28,6 +29,7 @@ public class FilmService {
     private final RatingStorage ratingStorage;
     private final LikeStorage likeStorage;
     private final DirectorStorage directorStorage;
+    private final EventService eventService;
 
     public Film add(Film film) {
         ratingStorage.getRatingById(film.getMpa().getId())
@@ -55,10 +57,22 @@ public class FilmService {
 
     public void addLike(Long filmId, Long userId) {
         likeStorage.addLike(filmId, userId);
+        eventService.addEvent(Event.builder()
+                .userId(userId)
+                .eventType("LIKE")
+                .operation("ADD")
+                .entityId(filmId)
+                .build());
     }
 
     public void deleteLike(Long filmId, Long userId) {
         likeStorage.deleteLike(filmId, userId);
+        eventService.addEvent(Event.builder()
+                .userId(userId)
+                .eventType("LIKE")
+                .operation("REMOVE")
+                .entityId(filmId)
+                .build());
     }
 
     public List<FilmShortInfoDto> getPopularFilm(int count) {

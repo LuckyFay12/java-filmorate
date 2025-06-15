@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.friend.FriendStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -16,6 +17,7 @@ import java.util.List;
 public class UserService {
     private final UserStorage userStorage;
     private final FriendStorage friendsStorage;
+    private final EventService eventService;
 
     public User create(User user) {
         return userStorage.create(user);
@@ -50,6 +52,13 @@ public class UserService {
         User friend = getById(friendId);
         friendsStorage.addFriend(userId, friendId);
         log.info("Пользователь с именем {} добавил в друзья пользователя c именем {}", user.getName(), friend.getName());
+        eventService.addEvent(Event.builder()
+                .userId(userId)
+                .eventType("FRIEND")
+                .operation("ADD")
+                .entityId(friendId)
+                .build());
+        log.info("Ивент добавлен: пользователь {} добавил в друзья пользователя {}", userId, friendId);
     }
 
     public void deleteFriend(Long userId, Long friendId) {
@@ -57,6 +66,13 @@ public class UserService {
         User friend = getById(friendId);
         friendsStorage.deleteFriend(userId, friendId);
         log.info("Пользователь с именем {} удалил из друзей пользователя c именем {}", user.getName(), friend.getName());
+        eventService.addEvent(Event.builder()
+                .userId(userId)
+                .eventType("FRIEND")
+                .operation("REMOVE")
+                .entityId(friendId)
+                .build());
+        log.info("Ивент добавлен: пользователь {} удалил из друзей пользователя {}", userId, friendId);
     }
 
     public List<User> getUserFriends(Long userId) {
