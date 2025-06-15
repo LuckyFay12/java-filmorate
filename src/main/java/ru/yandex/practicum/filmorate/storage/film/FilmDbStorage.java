@@ -172,7 +172,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getFilmsBySearch(String queryLowerCase, boolean searchByTitle, boolean searchByDirector) {
+    public List<Film> getFilmsByParam(String queryLowerCase, boolean searchByTitle, boolean searchByDirector) {
         List<Object> params = new ArrayList<>();
         if (searchByTitle) {
             params.add(queryLowerCase);

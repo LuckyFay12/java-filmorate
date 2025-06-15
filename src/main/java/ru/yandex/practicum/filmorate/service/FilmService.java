@@ -74,7 +74,7 @@ public class FilmService {
         return filmStorage.getFilmsByDirectorId(directorId, sortBy);
     }
 
-    public List<Film> getFilmsBySearch(String query, List<String> by) {
+    public List<Film> getFilmsByParam(String query, List<String> by) {
         Set<String> validBy = Set.of("title", "director");
         if (by.stream().anyMatch(element -> !validBy.contains(element))) {
             throw new IllegalArgumentException("Некорректные параметры запроса, должно быть: title и(или) director");
@@ -82,6 +82,6 @@ public class FilmService {
         String queryLowerCase = "%" + query.toLowerCase() + "%";
         boolean searchByTitle = by.contains("title");
         boolean searchByDirector = by.contains("director");
-        return filmStorage.getFilmsBySearch(queryLowerCase, searchByTitle, searchByDirector);
+        return filmStorage.getFilmsByParam(queryLowerCase, searchByTitle, searchByDirector);
     }
 }
