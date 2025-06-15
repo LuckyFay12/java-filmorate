@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
@@ -19,6 +20,7 @@ public class ReviewService {
     private final ReviewStorage reviewStorage;
     private final UserStorage userStorage;
     private final FilmDbStorage filmStorage;
+    private final EventService eventService;
 
     private static final String REVIEW_ID_NULL_MESSAGE = "reviewId не может быть null";
     private static final String FILM_ID_NULL_MESSAGE = "filmId не может быть null";
@@ -30,20 +32,39 @@ public class ReviewService {
 
         userStorage.getById(review.getUserId());
         filmStorage.getById(review.getFilmId());
-
-        return reviewStorage.createReview(review);
+        Review created = reviewStorage.createReview(review);
+        eventService.addEvent(Event.builder()
+                .userId(review.getUserId())
+                .eventType("REVIEW")
+                .operation("ADD")
+                .entityId(created.getReviewId())
+                .build());
+        return created;
     }
 
     public Review update(Review review) {
         validateNotNull(review.getReviewId(), REVIEW_ID_NULL_MESSAGE);
         reviewStorage.getReview(review.getReviewId());
-        return reviewStorage.updateReview(review);
+        Review updated = reviewStorage.updateReview(review);
+        eventService.addEvent(Event.builder()
+                .userId(updated.getUserId())
+                .eventType("REVIEW")
+                .operation("UPDATE")
+                .entityId(updated.getReviewId())
+                .build());
+        return updated;
     }
 
     public void delete(Long id) {
         validateNotNull(id, REVIEW_ID_NULL_MESSAGE);
-        reviewStorage.getReview(id);
+        Review review = reviewStorage.getReview(id);
         reviewStorage.deleteReview(id);
+        eventService.addEvent(Event.builder()
+                .userId(review.getUserId())
+                .eventType("REVIEW")
+                .operation("REMOVE")
+                .entityId(id)
+                .build());
     }
 
     public Review getById(Long id) {
