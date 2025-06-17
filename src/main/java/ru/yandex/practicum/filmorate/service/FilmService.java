@@ -4,7 +4,6 @@ import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dto.FilmShortInfoDto;
 import ru.yandex.practicum.filmorate.exception.DirectorNotFoundException;
 import ru.yandex.practicum.filmorate.exception.GenreNotFoundException;
 import ru.yandex.practicum.filmorate.exception.RatingNotFoundException;
@@ -75,13 +74,9 @@ public class FilmService {
                 .build());
     }
 
-    public List<FilmShortInfoDto> getPopularFilm(int count) {
-        return likeStorage.getPopularFilm(count);
-    }
-
     public List<Film> getFilmsByDirectorId(Long directorId, String sortBy) {
         directorStorage.getById(directorId)
-                .orElseThrow(() -> new DirectorNotFoundException("Режиссёр с id " + directorId + " не найден"));
+               .orElseThrow(() -> new DirectorNotFoundException("Режиссёр с id " + directorId + " не найден"));
         if (!sortBy.equals("year") && !sortBy.equals("likes")) {
             throw new ValidationException("SortBy должен быть year или likes");
         }
@@ -97,5 +92,16 @@ public class FilmService {
         boolean searchByTitle = by.contains("title");
         boolean searchByDirector = by.contains("director");
         return filmStorage.getFilmsByParam(queryLowerCase, searchByTitle, searchByDirector);
+    }
+
+    public List<Film> getPopularFilms(int count, Long genreId, Integer year) {
+        if (count <= 0) {
+            throw new IllegalArgumentException("Количество фильмов должно быть больше нуля");
+        }
+        if (genreId != null) {
+            genreStorage.getGenreById(genreId)
+                    .orElseThrow(() -> new GenreNotFoundException("Жанр с id " + genreId + " не найден"));
+        }
+        return filmStorage.getPopularFilms(count, genreId, year);
     }
 }

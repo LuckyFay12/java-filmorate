@@ -181,7 +181,8 @@ public class FilmDbStorage implements FilmStorage {
             params.add(queryLowerCase);
         }
         String sql = """
-                SELECT f.*, r.name AS mpa_name,
+                SELECT f.*,
+                r.name AS mpa_name,
                 g.genre_id, g.name AS genre_name,
                 d.id AS director_id, d.name AS director_name,
                 COUNT(l.user_id) AS likes_count
@@ -193,7 +194,7 @@ public class FilmDbStorage implements FilmStorage {
                 LEFT JOIN directors d ON d.id = fd.director_id
                 LEFT JOIN likes l ON f.id = l.film_id
                 WHERE %s
-                GROUP BY f.id, r.mpa_id, g.genre_id, d.id
+                GROUP BY f.id, r.mpa_id
                 ORDER BY likes_count DESC
                 """.formatted(buildWhere(searchByTitle, searchByDirector));
 
@@ -210,4 +211,29 @@ public class FilmDbStorage implements FilmStorage {
         }
         return String.join(" OR ", conditions);
     }
+
+    @Override
+    public List<Film> getPopularFilms(int count, Long genreId, Integer year) {
+        String sql = """
+                SELECT f.*,
+                r.name AS mpa_name,
+                g.genre_id, g.name AS genre_name,
+                d.id AS director_id, d.name AS director_name,
+                COUNT(l.user_id) AS likes_count
+                FROM films f
+                LEFT JOIN mpa_ratings r ON r.mpa_id = f.mpa_id
+                LEFT JOIN film_genres fg ON fg.film_id = f.id
+                LEFT JOIN genres g ON g.genre_id = fg.genre_id
+                LEFT JOIN film_directors fd ON fd.film_id = f.id
+                LEFT JOIN directors d ON d.id = fd.director_id
+                LEFT JOIN likes l ON f.id = l.film_id
+                WHERE g.genre_id = COALESCE(?, g.genre_id)
+                  AND EXTRACT(YEAR FROM release_date) = COALESCE(?, EXTRACT(YEAR FROM release_date))
+                GROUP BY f.id, r.mpa_id, g.genre_id
+                ORDER BY likes_count DESC
+                LIMIT ?
+                """;
+        return jdbcTemplate.query(sql, filmResultSetExtractor, genreId, year, count);
+    }
+
 }
