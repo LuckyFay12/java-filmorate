@@ -45,4 +45,9 @@ public class InMemoryFilmStorage implements FilmStorage {
                     throw new FilmNotFoundException(errorMessage);
                 });
     }
+
+    @Override  // затычка
+    public List<Film> getRecommendations(Long userId) {
+        return List.of();
+    }
 }

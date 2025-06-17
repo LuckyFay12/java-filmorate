@@ -5,10 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.friend.FriendStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -18,6 +21,7 @@ public class UserService {
     @Qualifier("userDbStorage")
     private final UserStorage userStorage;
     private final FriendStorage friendsStorage;
+    private final FilmStorage filmsStorage;
 
     public User create(User user) {
         return userStorage.create(user);
@@ -70,5 +74,15 @@ public class UserService {
         User user1 = getById(userId1);
         User user2 = getById(userId2);
         return friendsStorage.getCommonFriends(userId1, userId2);
+    }
+
+    public List<Film> getRecommendations(Long userId) {
+        User user = getById(userId);
+
+        List<Film> recFilms = filmsStorage.getRecommendations(userId);
+        if (recFilms.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return recFilms;
     }
 }
