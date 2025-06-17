@@ -14,4 +14,5 @@ public interface FilmStorage {
     Film getById(Long id);
 
     List<Film> getRecommendations(Long userId);
+
 }
