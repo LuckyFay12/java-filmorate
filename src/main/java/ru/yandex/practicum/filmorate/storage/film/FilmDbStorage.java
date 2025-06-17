@@ -96,7 +96,6 @@ public class FilmDbStorage implements FilmStorage {
         return films.stream().findFirst().orElse(null);
     }
 
-
     @Override
     public List<Film> getRecommendations(Long userId) {
         String sql = "SELECT f.*, m.name AS mpa_name FROM films f JOIN mpa m ON " +
