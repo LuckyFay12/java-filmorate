@@ -136,7 +136,6 @@ public class FilmDbStorage implements FilmStorage {
                 .orElseThrow(() -> new FilmNotFoundException("Фильм с id=" + id + " не найден"));
     }
 
-
     @Override
     public List<Film> getFilmsByDirectorId(Long directorId, String sortBy) {
         String sql;
