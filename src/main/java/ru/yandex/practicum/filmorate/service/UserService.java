@@ -92,11 +92,10 @@ public class UserService {
 
     public List<Film> getRecommendations(Long userId) {
         User user = getById(userId);
-
-        List<Film> recFilms = filmsStorage.getRecommendations(userId);
-        if (recFilms.isEmpty()) {
+        if (user == null) {
             return new ArrayList<>();
         }
-        return recFilms;
+        List<Film> recFilms = filmsStorage.getRecommendations(userId);
+        return recFilms != null ? recFilms : new ArrayList<>();
     }
 }

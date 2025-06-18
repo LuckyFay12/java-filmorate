@@ -238,10 +238,27 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getRecommendations(Long userId) {
-        String sql = "SELECT f.*, m.name AS mpa_name FROM films f JOIN mpa m ON " +
-                "f.mpa_id = m.id WHERE f.film_id in (SELECT film_id FROM likes WHERE user_id in (SELECT user_id FROM likes" +
-                " WHERE film_id in (SELECT film_id FROM likes WHERE user_id = ?) and user_id not in (?) GROUP BY user_id " +
-                "limit 1)) and f.film_id not in (SELECT film_id FROM likes WHERE user_id = ?)";
+        String sql = """
+        SELECT f.*,
+               m.name AS mpa_name
+        FROM films f
+        JOIN mpa m ON f.mpa_id = m.id
+        WHERE f.id IN (
+            SELECT film_id FROM likes
+            WHERE user_id IN (
+                SELECT user_id FROM likes
+                WHERE film_id IN (
+                    SELECT film_id FROM likes WHERE user_id = ?
+                )
+                AND user_id <> ?
+                LIMIT 1
+            )
+        )
+        AND f.id NOT IN (
+            SELECT film_id FROM likes WHERE user_id = ?
+        )
+        """;
         return jdbcTemplate.query(sql, filmResultSetExtractor, userId, userId, userId);
     }
+
 }
