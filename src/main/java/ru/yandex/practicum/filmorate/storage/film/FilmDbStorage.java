@@ -246,7 +246,7 @@ public class FilmDbStorage implements FilmStorage {
             WHERE f.film_id in (SELECT film_id FROM likes WHERE user_id in (SELECT user_id FROM likes 
             WHERE film_id in (SELECT film_id FROM likes WHERE user_id = ?) and user_id not in (?) GROUP BY user_id 
             limit 1)) and f.film_id not in (SELECT film_id FROM likes WHERE user_id = ?)
-""" ;
+            """ ;
         return jdbcTemplate.query(sql, filmResultSetExtractor, userId, userId, userId);
     }
 
