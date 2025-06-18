@@ -60,6 +60,18 @@ public class UserDbStorage implements UserStorage {
         jdbcTemplate.update(query, user.getName(), user.getLogin(), user.getEmail(), user.getBirthday(), user.getId());
         return user;
     }
+
+    @Override
+    public void deleteById(Long id) {
+        // Clean up all user-related data before deleting the user
+        jdbcTemplate.update("DELETE FROM friends WHERE user_id = ? OR friend_id = ?", id, id);
+        jdbcTemplate.update("DELETE FROM likes WHERE user_id = ?", id);
+        jdbcTemplate.update("DELETE FROM film_reviews WHERE user_id = ?", id);
+        jdbcTemplate.update("DELETE FROM reviews_likes WHERE user_id = ?", id);
+        String query = "DELETE FROM users WHERE id = ?";
+        int rowsAffected = jdbcTemplate.update(query, id);
+        if (rowsAffected == 0) {
+            throw new UserNotFoundException("User with id " + id + " not found");
+        }
+    }
 }
-
-

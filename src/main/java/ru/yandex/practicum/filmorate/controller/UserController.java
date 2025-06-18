@@ -70,4 +70,11 @@ public class UserController {
         log.info("Получен HTTP-запрос на получение списка друзей пользователя с id {}, общих с пользователем с id {}", id, otherId);
         return userService.getCommonFriends(id, otherId);
     }
+
+    @DeleteMapping("/{id}")
+    public void deleteById(@PathVariable Long id) {
+        log.info("Получен HTTP-запрос на удаление пользователя по id: {}", id);
+        userService.deleteById(id);
+        log.info("Пользователь с id {} успешно удалён", id);
+    }
 }

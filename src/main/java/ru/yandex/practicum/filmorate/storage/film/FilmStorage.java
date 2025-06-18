@@ -18,4 +18,6 @@ public interface FilmStorage {
     List<Film> getFilmsByParam(String queryLowerCase, boolean searchByTitle, boolean searchByDirector);
 
     List<Film> getPopularFilms(int count, Long genreId, Integer year);
+
+    void deleteById(Long id);
 }
