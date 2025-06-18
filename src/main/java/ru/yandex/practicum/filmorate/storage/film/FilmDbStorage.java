@@ -236,4 +236,18 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(sql, filmResultSetExtractor, genreId, year, count);
     }
 
+    @Override
+    public List<Film> getRecommendations(Long userId) {
+        String sql = """
+            SELECT f.*, 
+            r.name AS mpa_name 
+            FROM films f 
+            JOIN mpa_ratings r ON  f.mpa_id = m.id 
+            WHERE f.film_id in (SELECT film_id FROM likes WHERE user_id in (SELECT user_id FROM likes 
+            WHERE film_id in (SELECT film_id FROM likes WHERE user_id = ?) and user_id not in (?) GROUP BY user_id 
+            limit 1)) and f.film_id not in (SELECT film_id FROM likes WHERE user_id = ?)
+""" ;
+        return jdbcTemplate.query(sql, filmResultSetExtractor, userId, userId, userId);
+    }
+
 }
