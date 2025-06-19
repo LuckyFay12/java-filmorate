@@ -96,11 +96,7 @@ public class UserService {
     }
 
     public List<Film> getRecommendations(Long userId) {
-        User user = getById(userId);
-        if (user == null) {
-            return new ArrayList<>();
-        }
-        List<Film> recFilms = filmsStorage.getRecommendations(userId);
-        return recFilms != null ? recFilms : new ArrayList<>();
+        getById(userId);
+        return filmsStorage.getRecommendations(userId);
     }
 }

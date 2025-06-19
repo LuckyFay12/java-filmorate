@@ -74,7 +74,7 @@ public class UserController {
 
     @GetMapping("/{id}/recommendations")
     public List<Film> getRecommendations(@PathVariable Long id) {
-        log.info("Получен HTTP-запрос на получение списка рекомендованных фильмов для по id {}", id);
+        log.info("Получен HTTP-запрос на получение списка рекомендованных фильмов для пользователя с id {}", id);
         return userService.getRecommendations(id);
     }
 

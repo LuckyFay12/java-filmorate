@@ -239,27 +239,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getRecommendations(Long userId) {
         String sql = """
-        WITH user_likes AS (
-            SELECT film_id FROM likes WHERE user_id = ?
-        ),
-        similar_users AS (
-            SELECT l.user_id, COUNT(*) AS common_likes
-            FROM likes l
-            JOIN user_likes ul ON l.film_id = ul.film_id
-            WHERE l.user_id != ?
-            GROUP BY l.user_id
-            ORDER BY common_likes DESC
-            LIMIT 1
-        ),
-        recommended_film_ids AS (
-            SELECT l.film_id
-            FROM likes l
-            JOIN similar_users su ON l.user_id = su.user_id
-            LEFT JOIN user_likes ul ON l.film_id = ul.film_id
-            WHERE ul.film_id IS NULL
-            LIMIT 1
-        )
-        SELECT
+        SELECT 
             f.id,
             f.name,
             f.description,
@@ -277,9 +257,23 @@ public class FilmDbStorage implements FilmStorage {
         LEFT JOIN genres g ON fg.genre_id = g.genre_id
         LEFT JOIN film_directors fd ON f.id = fd.film_id
         LEFT JOIN directors d ON fd.director_id = d.id
-        WHERE f.id IN (SELECT film_id FROM recommended_film_ids)
-        """;
-        return jdbcTemplate.query(sql, filmResultSetExtractor, userId, userId);
+        WHERE f.id IN (
+            SELECT film_id
+            FROM likes
+            WHERE user_id = (
+                SELECT user_id
+                FROM likes
+                WHERE film_id IN (SELECT film_id FROM likes WHERE user_id = ?)
+                  AND user_id != ?
+                GROUP BY user_id
+                ORDER BY COUNT(*) DESC
+                LIMIT 1
+            )
+            AND film_id NOT IN (SELECT film_id FROM likes WHERE user_id = ?)
+        )
+    """;
+
+        return jdbcTemplate.query(sql, filmResultSetExtractor, userId, userId, userId);
     }
 
     @Override
@@ -320,4 +314,5 @@ public class FilmDbStorage implements FilmStorage {
                 """;
         return jdbcTemplate.query(sql, filmResultSetExtractor, userId, friendId);
     }
+
 }
