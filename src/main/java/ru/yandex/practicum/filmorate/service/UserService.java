@@ -85,4 +85,8 @@ public class UserService {
         User user2 = getById(userId2);
         return friendsStorage.getCommonFriends(userId1, userId2);
     }
+
+    public void deleteById(Long id) {
+        userStorage.deleteById(id);
+    }
 }

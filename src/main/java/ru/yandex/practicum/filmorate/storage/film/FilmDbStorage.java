@@ -236,4 +236,16 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(sql, filmResultSetExtractor, genreId, year, count);
     }
 
+    @Override
+    public void deleteById(Long id) {
+        jdbcTemplate.update("DELETE FROM likes WHERE film_id = ?", id);
+        jdbcTemplate.update("DELETE FROM film_reviews WHERE film_id = ?", id);
+        jdbcTemplate.update("DELETE FROM film_genres WHERE film_id = ?", id);
+        jdbcTemplate.update("DELETE FROM film_directors WHERE film_id = ?", id);
+        String query = "DELETE FROM films WHERE id = ?";
+        int rowsAffected = jdbcTemplate.update(query, id);
+        if (rowsAffected == 0) {
+            throw new FilmNotFoundException("Film with id " + id + " not found");
+        }
+    }
 }

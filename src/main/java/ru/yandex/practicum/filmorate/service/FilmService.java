@@ -104,4 +104,8 @@ public class FilmService {
         }
         return filmStorage.getPopularFilms(count, genreId, year);
     }
+
+    public void deleteById(Long id) {
+        filmStorage.deleteById(id);
+    }
 }
