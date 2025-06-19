@@ -259,7 +259,7 @@ public class FilmDbStorage implements FilmStorage {
             WHERE ul.film_id IS NULL
             LIMIT 1
         )
-        SELECT 
+        SELECT
             f.id,
             f.name,
             f.description,
