@@ -239,7 +239,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getRecommendations(Long userId) {
         String sql = """
-        SELECT 
+        SELECT
             f.id,
             f.name,
             f.description,
