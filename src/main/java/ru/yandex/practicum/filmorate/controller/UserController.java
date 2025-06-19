@@ -78,3 +78,12 @@ public class UserController {
         return userService.getRecommendations(id);
     }
 }
+
+    @DeleteMapping("/{id}")
+    public void deleteById(@PathVariable Long id) {
+        log.info("Получен HTTP-запрос на удаление пользователя по id: {}", id);
+        userService.deleteById(id);
+        log.info("Пользователь с id {} успешно удалён", id);
+    }
+}
+

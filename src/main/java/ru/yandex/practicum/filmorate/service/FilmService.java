@@ -29,6 +29,7 @@ public class FilmService {
     private final LikeStorage likeStorage;
     private final DirectorStorage directorStorage;
     private final EventService eventService;
+    private final UserService userService;
 
     public Film add(Film film) {
         ratingStorage.getRatingById(film.getMpa().getId())
@@ -76,7 +77,7 @@ public class FilmService {
 
     public List<Film> getFilmsByDirectorId(Long directorId, String sortBy) {
         directorStorage.getById(directorId)
-               .orElseThrow(() -> new DirectorNotFoundException("Режиссёр с id " + directorId + " не найден"));
+                .orElseThrow(() -> new DirectorNotFoundException("Режиссёр с id " + directorId + " не найден"));
         if (!sortBy.equals("year") && !sortBy.equals("likes")) {
             throw new ValidationException("SortBy должен быть year или likes");
         }
@@ -103,5 +104,15 @@ public class FilmService {
                     .orElseThrow(() -> new GenreNotFoundException("Жанр с id " + genreId + " не найден"));
         }
         return filmStorage.getPopularFilms(count, genreId, year);
+    }
+
+    public void deleteById(Long id) {
+        filmStorage.deleteById(id);
+    }
+
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        userService.getById(userId);
+        userService.getById(friendId);
+        return filmStorage.getCommonFilms(userId, friendId);
     }
 }
