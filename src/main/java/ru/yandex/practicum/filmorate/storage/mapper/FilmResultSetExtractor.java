@@ -59,5 +59,3 @@ public class FilmResultSetExtractor implements ResultSetExtractor<List<Film>> {
         return ratingMapper.mapRow(rs, 0);
     }
 }
-
-
