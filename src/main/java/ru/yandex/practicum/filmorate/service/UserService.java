@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.friend.FriendStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -19,7 +18,6 @@ public class UserService {
     private final UserStorage userStorage;
     private final FriendStorage friendsStorage;
     private final EventService eventService;
-    private final FilmStorage filmsStorage;
 
     public User create(User user) {
         return userStorage.create(user);
