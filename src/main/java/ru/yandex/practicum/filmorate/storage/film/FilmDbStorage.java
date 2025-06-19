@@ -281,7 +281,6 @@ public class FilmDbStorage implements FilmStorage {
         """;
         return jdbcTemplate.query(sql, filmResultSetExtractor, userId, userId);
     }
-<<<<<<< HEAD
 
     @Override
     public void deleteById(Long id) {
@@ -321,6 +320,4 @@ public class FilmDbStorage implements FilmStorage {
                 """;
         return jdbcTemplate.query(sql, filmResultSetExtractor, userId, friendId);
     }
-=======
->>>>>>> e2a1ae5 (Добавление рекомендаций)
 }
