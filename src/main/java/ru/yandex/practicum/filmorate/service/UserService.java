@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.friend.FriendStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -18,6 +19,7 @@ public class UserService {
     private final UserStorage userStorage;
     private final FriendStorage friendsStorage;
     private final EventService eventService;
+    private final FilmStorage filmsStorage;
 
     public User create(User user) {
         return userStorage.create(user);
@@ -76,13 +78,13 @@ public class UserService {
     }
 
     public List<User> getUserFriends(Long userId) {
-        User user = getById(userId);
+        getById(userId);
         return friendsStorage.getUserFriends(userId);
     }
 
     public List<User> getCommonFriends(Long userId1, Long userId2) {
-        User user1 = getById(userId1);
-        User user2 = getById(userId2);
+        getById(userId1);
+        getById(userId2);
         return friendsStorage.getCommonFriends(userId1, userId2);
     }
 
