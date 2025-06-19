@@ -68,14 +68,14 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getAll() {
         String sql = "SELECT f.*, r.mpa_id, r.name AS mpa_name, " +
-                "g.genre_id, g.name AS genre_name, " +
-                "d.id AS director_id, d.name AS director_name " +
-                "FROM films f " +
-                "LEFT JOIN mpa_ratings r ON r.mpa_id = f.mpa_id " +
-                "LEFT JOIN film_genres fg ON fg.film_id = f.id " +
-                "LEFT JOIN genres g ON g.genre_id = fg.genre_id " +
-                "LEFT JOIN film_directors fd ON fd.film_id = f.id " +
-                "LEFT JOIN directors d ON d.id = fd.director_id";
+                     "g.genre_id, g.name AS genre_name, " +
+                     "d.id AS director_id, d.name AS director_name " +
+                     "FROM films f " +
+                     "LEFT JOIN mpa_ratings r ON r.mpa_id = f.mpa_id " +
+                     "LEFT JOIN film_genres fg ON fg.film_id = f.id " +
+                     "LEFT JOIN genres g ON g.genre_id = fg.genre_id " +
+                     "LEFT JOIN film_directors fd ON fd.film_id = f.id " +
+                     "LEFT JOIN directors d ON d.id = fd.director_id";
         return jdbcTemplate.query(sql, filmResultSetExtractor);
     }
 
@@ -105,7 +105,6 @@ public class FilmDbStorage implements FilmStorage {
         String deleteDirectorsSql = "DELETE FROM film_directors WHERE film_id = ?";
         jdbcTemplate.update(deleteDirectorsSql, film.getId());
 
-
         if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
             String insertDirectorsSql = "INSERT INTO film_directors (film_id, director_id) VALUES (?, ?)";
             jdbcTemplate.batchUpdate(insertDirectorsSql,
@@ -120,15 +119,15 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film getById(Long id) {
         String sql = "SELECT f.*, r.mpa_id, r.name AS mpa_name, " +
-                "g.genre_id, g.name AS genre_name, " +
-                "d.id AS director_id, d.name AS director_name " +
-                "FROM films f " +
-                "LEFT JOIN mpa_ratings r ON r.mpa_id = f.mpa_id " +
-                "LEFT JOIN film_genres fg ON fg.film_id = f.id " +
-                "LEFT JOIN genres g ON g.genre_id = fg.genre_id " +
-                "LEFT JOIN film_directors fd ON fd.film_id = f.id " +
-                "LEFT JOIN directors d ON d.id = fd.director_id " +
-                "WHERE f.id = ?";
+                     "g.genre_id, g.name AS genre_name, " +
+                     "d.id AS director_id, d.name AS director_name " +
+                     "FROM films f " +
+                     "LEFT JOIN mpa_ratings r ON r.mpa_id = f.mpa_id " +
+                     "LEFT JOIN film_genres fg ON fg.film_id = f.id " +
+                     "LEFT JOIN genres g ON g.genre_id = fg.genre_id " +
+                     "LEFT JOIN film_directors fd ON fd.film_id = f.id " +
+                     "LEFT JOIN directors d ON d.id = fd.director_id " +
+                     "WHERE f.id = ?";
         List<Film> films = jdbcTemplate.query(sql, filmResultSetExtractor, id);
         assert films != null;
         return films.stream()
@@ -141,31 +140,31 @@ public class FilmDbStorage implements FilmStorage {
         String sql;
         if (sortBy.equals("year")) {
             sql = "SELECT f.*, r.name AS mpa_name, " +
-                    "g.genre_id, g.name AS genre_name, " +
-                    "d.id AS director_id, d.name AS director_name " +
-                    "FROM films f " +
-                    "LEFT JOIN mpa_ratings r ON r.mpa_id = f.mpa_id " +
-                    "LEFT JOIN film_genres fg ON fg.film_id = f.id " +
-                    "LEFT JOIN genres g ON g.genre_id = fg.genre_id " +
-                    "JOIN film_directors fd ON fd.film_id = f.id " +
-                    "JOIN directors d ON d.id = fd.director_id " +
-                    "WHERE fd.director_id = ? " +
-                    "ORDER BY f.release_date";
+                  "g.genre_id, g.name AS genre_name, " +
+                  "d.id AS director_id, d.name AS director_name " +
+                  "FROM films f " +
+                  "LEFT JOIN mpa_ratings r ON r.mpa_id = f.mpa_id " +
+                  "LEFT JOIN film_genres fg ON fg.film_id = f.id " +
+                  "LEFT JOIN genres g ON g.genre_id = fg.genre_id " +
+                  "JOIN film_directors fd ON fd.film_id = f.id " +
+                  "JOIN directors d ON d.id = fd.director_id " +
+                  "WHERE fd.director_id = ? " +
+                  "ORDER BY f.release_date";
         } else {
             sql = "SELECT f.*, r.name AS mpa_name, " +
-                    "g.genre_id, g.name AS genre_name, " +
-                    "d.id AS director_id, d.name AS director_name, " +
-                    "COUNT(l.user_id) AS likes_count " +
-                    "FROM films f " +
-                    "LEFT JOIN mpa_ratings r ON r.mpa_id = f.mpa_id " +
-                    "LEFT JOIN film_genres fg ON fg.film_id = f.id " +
-                    "LEFT JOIN genres g ON g.genre_id = fg.genre_id " +
-                    "JOIN film_directors fd ON fd.film_id = f.id " +
-                    "JOIN directors d ON d.id = fd.director_id " +
-                    "LEFT JOIN likes l ON f.id = l.film_id " +
-                    "WHERE fd.director_id = ? " +
-                    "GROUP BY f.id, r.mpa_id, g.genre_id, d.id " +
-                    "ORDER BY likes_count DESC";
+                  "g.genre_id, g.name AS genre_name, " +
+                  "d.id AS director_id, d.name AS director_name, " +
+                  "COUNT(l.user_id) AS likes_count " +
+                  "FROM films f " +
+                  "LEFT JOIN mpa_ratings r ON r.mpa_id = f.mpa_id " +
+                  "LEFT JOIN film_genres fg ON fg.film_id = f.id " +
+                  "LEFT JOIN genres g ON g.genre_id = fg.genre_id " +
+                  "JOIN film_directors fd ON fd.film_id = f.id " +
+                  "JOIN directors d ON d.id = fd.director_id " +
+                  "LEFT JOIN likes l ON f.id = l.film_id " +
+                  "WHERE fd.director_id = ? " +
+                  "GROUP BY f.id, r.mpa_id, g.genre_id, d.id " +
+                  "ORDER BY likes_count DESC";
         }
         List<Film> films = jdbcTemplate.query(sql, filmResultSetExtractor, directorId);
         return films != null ? films : Collections.emptyList();
@@ -247,5 +246,31 @@ public class FilmDbStorage implements FilmStorage {
         if (rowsAffected == 0) {
             throw new FilmNotFoundException("Film with id " + id + " not found");
         }
+    }
+
+    @Override
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        String sql = """
+                SELECT f.*,
+                r.name AS mpa_name,
+                g.genre_id, g.name AS genre_name,
+                d.id AS director_id, d.name AS director_name,
+                COUNT(l.user_id) AS likes_count
+                FROM films f
+                LEFT JOIN mpa_ratings r ON r.mpa_id = f.mpa_id
+                LEFT JOIN film_genres fg ON fg.film_id = f.id
+                LEFT JOIN genres g ON g.genre_id = fg.genre_id
+                LEFT JOIN film_directors fd ON fd.film_id = f.id
+                LEFT JOIN directors d ON d.id = fd.director_id
+                LEFT JOIN likes l ON f.id = l.film_id
+                WHERE l.film_id IN (
+                    SELECT film_id FROM likes WHERE user_id = ?
+                    INTERSECT
+                    SELECT film_id FROM likes WHERE user_id = ?
+                )
+                GROUP BY f.id, r.mpa_id, g.genre_id, d.id
+                ORDER BY likes_count DESC
+                """;
+        return jdbcTemplate.query(sql, filmResultSetExtractor, userId, friendId);
     }
 }

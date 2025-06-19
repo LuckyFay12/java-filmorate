@@ -76,13 +76,13 @@ public class UserService {
     }
 
     public List<User> getUserFriends(Long userId) {
-        User user = getById(userId);
+        getById(userId);
         return friendsStorage.getUserFriends(userId);
     }
 
     public List<User> getCommonFriends(Long userId1, Long userId2) {
-        User user1 = getById(userId1);
-        User user2 = getById(userId2);
+        getById(userId1);
+        getById(userId2);
         return friendsStorage.getCommonFriends(userId1, userId2);
     }
 
