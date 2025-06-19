@@ -265,7 +265,7 @@ public class FilmDbStorage implements FilmStorage {
                 LEFT JOIN likes l ON f.id = l.film_id
                 WHERE l.film_id IN (
                     SELECT film_id FROM likes WHERE user_id = ?
-                    INTERSECT 
+                    INTERSECT
                     SELECT film_id FROM likes WHERE user_id = ?
                 )
                 GROUP BY f.id, r.mpa_id, g.genre_id, d.id
