@@ -56,6 +56,9 @@ public class FilmService {
     }
 
     public void addLike(Long filmId, Long userId) {
+        userService.getById(userId);
+        getById(filmId);
+
         likeStorage.addLike(filmId, userId);
         eventService.addEvent(Event.builder()
                 .userId(userId)
@@ -66,6 +69,9 @@ public class FilmService {
     }
 
     public void deleteLike(Long filmId, Long userId) {
+        userService.getById(userId);
+        getById(filmId);
+
         likeStorage.deleteLike(filmId, userId);
         eventService.addEvent(Event.builder()
                 .userId(userId)

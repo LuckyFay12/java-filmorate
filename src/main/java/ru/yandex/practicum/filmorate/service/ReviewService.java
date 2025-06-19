@@ -34,7 +34,7 @@ public class ReviewService {
         filmStorage.getById(review.getFilmId());
         Review created = reviewStorage.createReview(review);
         eventService.addEvent(Event.builder()
-                .userId(review.getUserId())
+                .userId(created.getUserId())
                 .eventType("REVIEW")
                 .operation("ADD")
                 .entityId(created.getReviewId())

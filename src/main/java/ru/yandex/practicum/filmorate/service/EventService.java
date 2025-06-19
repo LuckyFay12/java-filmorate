@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.storage.event.EventStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
 
@@ -13,12 +14,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EventService {
     private final EventStorage eventStorage;
+    private final UserStorage userStorage;
 
     public Event addEvent(Event event) {
         return eventStorage.addEvent(event);
     }
 
     public List<Event> getUserEvents(Long userId) {
+        userStorage.getById(userId);
         return eventStorage.getUserEvents(userId);
     }
 }
