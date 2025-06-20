@@ -105,6 +105,7 @@ public class FilmDbStorage implements FilmStorage {
         String deleteDirectorsSql = "DELETE FROM film_directors WHERE film_id = ?";
         jdbcTemplate.update(deleteDirectorsSql, film.getId());
 
+
         if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
             String insertDirectorsSql = "INSERT INTO film_directors (film_id, director_id) VALUES (?, ?)";
             jdbcTemplate.batchUpdate(insertDirectorsSql,
@@ -236,6 +237,46 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public List<Film> getRecommendations(Long userId) {
+        String sql = """
+        SELECT
+            f.id,
+            f.name,
+            f.description,
+            f.release_date,
+            f.duration,
+            f.mpa_id,
+            r.name AS mpa_name,
+            g.genre_id,
+            g.name AS genre_name,
+            d.id AS director_id,
+            d.name AS director_name
+        FROM films f
+        JOIN mpa_ratings r ON f.mpa_id = r.mpa_id
+        LEFT JOIN film_genres fg ON f.id = fg.film_id
+        LEFT JOIN genres g ON fg.genre_id = g.genre_id
+        LEFT JOIN film_directors fd ON f.id = fd.film_id
+        LEFT JOIN directors d ON fd.director_id = d.id
+        WHERE f.id IN (
+            SELECT film_id
+            FROM likes
+            WHERE user_id = (
+                SELECT user_id
+                FROM likes
+                WHERE film_id IN (SELECT film_id FROM likes WHERE user_id = ?)
+                  AND user_id != ?
+                GROUP BY user_id
+                ORDER BY COUNT(*) DESC
+                LIMIT 1
+            )
+            AND film_id NOT IN (SELECT film_id FROM likes WHERE user_id = ?)
+        )
+    """;
+
+        return jdbcTemplate.query(sql, filmResultSetExtractor, userId, userId, userId);
+    }
+
+    @Override
     public void deleteById(Long id) {
         jdbcTemplate.update("DELETE FROM likes WHERE film_id = ?", id);
         jdbcTemplate.update("DELETE FROM film_reviews WHERE film_id = ?", id);
@@ -273,4 +314,5 @@ public class FilmDbStorage implements FilmStorage {
                 """;
         return jdbcTemplate.query(sql, filmResultSetExtractor, userId, friendId);
     }
+
 }
