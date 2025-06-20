@@ -6,13 +6,12 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.mapper.FilmResultSetExtractor;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -42,13 +41,17 @@ public class FilmDbStorage implements FilmStorage {
         } else {
             throw new RuntimeException("Не удалось сохранить данные");
         }
-
         if (film.getGenres() != null) {
-            String genreSql = "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?);";
+            List<Genre> sortedGenres = film.getGenres().stream()
+                    .distinct()
+                    .sorted(Comparator.comparing(Genre::getId))
+                    .collect(Collectors.toList());
+            // Обновляем список жанров в фильме отсортированной версией
+            film.setGenres(new LinkedHashSet<>(sortedGenres));
 
+            String genreSql = "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?);";
             jdbcTemplate.batchUpdate(genreSql,
-                    film.getGenres().stream()
-                            .distinct()
+                    sortedGenres.stream()
                             .map(genre -> new Object[]{id, genre.getId()})
                             .collect(Collectors.toList())
             );
@@ -87,24 +90,28 @@ public class FilmDbStorage implements FilmStorage {
         if (getById(film.getId()) == null) {
             throw new FilmNotFoundException("Фильм с id=" + film.getId() + " не найден");
         }
-
         String sql = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, mpa_id = ? WHERE id = ?";
         jdbcTemplate.update(sql, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(), film.getMpa().getId(), film.getId());
         String deleteGenresSql = "DELETE FROM film_genres WHERE film_id = ?";
         jdbcTemplate.update(deleteGenresSql, film.getId());
 
-        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
-            String insertGenresSql = "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)";
-            jdbcTemplate.batchUpdate(insertGenresSql,
-                    film.getGenres().stream()
-                            .distinct()
-                            .map(genre -> new Object[]{film.getId(), genre.getId()})
-                            .collect(Collectors.toList()));
-        }
+        if (film.getGenres() != null) {
+            List<Genre> sortedGenres = film.getGenres().stream()
+                    .distinct()
+                    .sorted(Comparator.comparing(Genre::getId))
+                    .collect(Collectors.toList());
+            // Обновляем список жанров в фильме отсортированной версией
+            film.setGenres(new LinkedHashSet<>(sortedGenres));
 
+            String genreSql = "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?);";
+            jdbcTemplate.batchUpdate(genreSql,
+                    sortedGenres.stream()
+                            .map(genre -> new Object[]{film.getId(), genre.getId()})
+                            .collect(Collectors.toList())
+            );
+        }
         String deleteDirectorsSql = "DELETE FROM film_directors WHERE film_id = ?";
         jdbcTemplate.update(deleteDirectorsSql, film.getId());
-
 
         if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
             String insertDirectorsSql = "INSERT INTO film_directors (film_id, director_id) VALUES (?, ?)";
@@ -227,52 +234,58 @@ public class FilmDbStorage implements FilmStorage {
                 LEFT JOIN film_directors fd ON fd.film_id = f.id
                 LEFT JOIN directors d ON d.id = fd.director_id
                 LEFT JOIN likes l ON f.id = l.film_id
-                WHERE g.genre_id = COALESCE(?, g.genre_id)
-                  AND EXTRACT(YEAR FROM release_date) = COALESCE(?, EXTRACT(YEAR FROM release_date))
-                GROUP BY f.id, r.mpa_id, g.genre_id
+                WHERE  (? IS NULL OR EXISTS (
+                        SELECT 1 FROM film_genres fg
+                        WHERE fg.film_id = f.id AND fg.genre_id = ?
+                        ))
+                  AND (? IS NULL OR EXTRACT(YEAR FROM f.release_date) = ?)
+                GROUP BY f.id, r.mpa_id, g.genre_id, d.id
+                HAVING f.id IN (
+                    SELECT id FROM films
+                    ORDER BY (SELECT COUNT(*) FROM likes WHERE film_id = films.id) DESC
+                    LIMIT ?  -- Ограничение количества фильмов
+                )
                 ORDER BY likes_count DESC
-                LIMIT ?
                 """;
-        return jdbcTemplate.query(sql, filmResultSetExtractor, genreId, year, count);
+        return jdbcTemplate.query(sql, filmResultSetExtractor, genreId, genreId, year, year, count);
     }
 
     @Override
     public List<Film> getRecommendations(Long userId) {
         String sql = """
-        SELECT
-            f.id,
-            f.name,
-            f.description,
-            f.release_date,
-            f.duration,
-            f.mpa_id,
-            r.name AS mpa_name,
-            g.genre_id,
-            g.name AS genre_name,
-            d.id AS director_id,
-            d.name AS director_name
-        FROM films f
-        JOIN mpa_ratings r ON f.mpa_id = r.mpa_id
-        LEFT JOIN film_genres fg ON f.id = fg.film_id
-        LEFT JOIN genres g ON fg.genre_id = g.genre_id
-        LEFT JOIN film_directors fd ON f.id = fd.film_id
-        LEFT JOIN directors d ON fd.director_id = d.id
-        WHERE f.id IN (
-            SELECT film_id
-            FROM likes
-            WHERE user_id = (
-                SELECT user_id
-                FROM likes
-                WHERE film_id IN (SELECT film_id FROM likes WHERE user_id = ?)
-                  AND user_id != ?
-                GROUP BY user_id
-                ORDER BY COUNT(*) DESC
-                LIMIT 1
-            )
-            AND film_id NOT IN (SELECT film_id FROM likes WHERE user_id = ?)
-        )
-    """;
-
+                    SELECT
+                        f.id,
+                        f.name,
+                        f.description,
+                        f.release_date,
+                        f.duration,
+                        f.mpa_id,
+                        r.name AS mpa_name,
+                        g.genre_id,
+                        g.name AS genre_name,
+                        d.id AS director_id,
+                        d.name AS director_name
+                    FROM films f
+                    JOIN mpa_ratings r ON f.mpa_id = r.mpa_id
+                    LEFT JOIN film_genres fg ON f.id = fg.film_id
+                    LEFT JOIN genres g ON fg.genre_id = g.genre_id
+                    LEFT JOIN film_directors fd ON f.id = fd.film_id
+                    LEFT JOIN directors d ON fd.director_id = d.id
+                    WHERE f.id IN (
+                        SELECT film_id
+                        FROM likes
+                        WHERE user_id = (
+                            SELECT user_id
+                            FROM likes
+                            WHERE film_id IN (SELECT film_id FROM likes WHERE user_id = ?)
+                              AND user_id != ?
+                            GROUP BY user_id
+                            ORDER BY COUNT(*) DESC
+                            LIMIT 1
+                        )
+                        AND film_id NOT IN (SELECT film_id FROM likes WHERE user_id = ?)
+                    )
+                """;
         return jdbcTemplate.query(sql, filmResultSetExtractor, userId, userId, userId);
     }
 
@@ -314,5 +327,4 @@ public class FilmDbStorage implements FilmStorage {
                 """;
         return jdbcTemplate.query(sql, filmResultSetExtractor, userId, friendId);
     }
-
 }
