@@ -1,19 +1,3 @@
-delete from users;
-delete from likes;
-delete from friends;
-delete from films;
-delete from directors;
-delete from film_directors;
-delete from film_genres;
-delete from film_reviews;
-delete from reviews_likes;
-delete from events;
-ALTER TABLE films ALTER COLUMN id RESTART WITH 1;
-ALTER TABLE users ALTER COLUMN id RESTART WITH 1;
-ALTER TABLE directors ALTER COLUMN id RESTART WITH 1;
-ALTER TABLE film_reviews ALTER COLUMN id RESTART WITH 1;
-ALTER TABLE events ALTER COLUMN event_id RESTART WITH 1;
-
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(255),
