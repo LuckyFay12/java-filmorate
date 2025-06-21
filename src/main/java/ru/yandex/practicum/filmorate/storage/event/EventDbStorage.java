@@ -27,12 +27,11 @@ public class EventDbStorage implements EventStorage {
                 """;
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        // если timestamp не указан, используем текущее время в миллисекундах
-        long timestamp = event.getTimestamp() != null ? event.getTimestamp() : System.currentTimeMillis();
+
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sql, new String[]{"event_id"});
             ps.setLong(1, event.getUserId());
-            ps.setLong(2, timestamp);
+            ps.setLong(2, event.getTimestamp());
             ps.setString(3, event.getEventType());
             ps.setString(4, event.getOperation());
             ps.setLong(5, event.getEntityId());
