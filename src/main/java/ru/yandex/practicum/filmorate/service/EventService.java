@@ -17,6 +17,10 @@ public class EventService {
     private final UserStorage userStorage;
 
     public Event addEvent(Event event) {
+        // если timestamp не указан, используем текущее время в миллисекундах
+        long timestamp = event.getTimestamp() != null ? event.getTimestamp() : System.currentTimeMillis();
+        event.setTimestamp(timestamp);
+        log.debug("Добавление события: {}", event);
         return eventStorage.addEvent(event);
     }
 

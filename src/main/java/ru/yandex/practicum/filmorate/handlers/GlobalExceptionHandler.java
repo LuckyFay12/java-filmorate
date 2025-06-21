@@ -10,8 +10,6 @@ import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.model.ApiError;
 import org.springframework.validation.FieldError;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -30,14 +28,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DirectorNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, Object> handleDirectorNotFound(DirectorNotFoundException e) {
+    public ApiError handleDirectorNotFound(DirectorNotFoundException e) {
         log.debug("Режиссёр не найден: {}", e.getMessage(), e);
-        Map<String, Object> response = new HashMap<>();
-        response.put("errorCode", HttpStatus.NOT_FOUND.value());
-        response.put("error", "Director not found");
-        response.put("description", e.getMessage());
-
-        return response;
+        return ApiError.builder()
+                .errorCode(HttpStatus.NOT_FOUND.value())
+                .description(e.getMessage())
+                .build();
     }
 
     @ExceptionHandler
