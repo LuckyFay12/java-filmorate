@@ -1,10 +1,10 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.dto.FilmShortInfoDto;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -60,8 +60,42 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<FilmShortInfoDto> getPopularFilm(@RequestParam(defaultValue = "10") int count) {
-        log.info("Получен HTTP-запрос на список популярных фильмов, число={}", count);
-        return filmService.getPopularFilm(count);
+    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") int count,
+                                      @RequestParam(required = false) Long genreId,
+                                      @RequestParam(required = false) @Min(1895) Integer year) {
+        log.info("Получен HTTP-запрос на получение популярных фильмов жанра: {} за {} год, число={}", genreId, year, count);
+        List<Film> popularFilms = filmService.getPopularFilms(count, genreId, year);
+        log.info("Успешно обработан HTTP-запрос на получение популярных фильмов");
+        return popularFilms;
+    }
+
+    @GetMapping("/director/{directorId}")
+    public List<Film> getFilmsByDirectorId(@PathVariable Long directorId,
+                                           @RequestParam(defaultValue = "likes") String sortBy) {
+        log.info("Получен HTTP-запрос на получение списка фильмов режиссёра с id {}, сортированных по {}", directorId, sortBy);
+        return filmService.getFilmsByDirectorId(directorId, sortBy);
+    }
+
+    @GetMapping("/search")
+    public List<Film> getFilmsByParam(@RequestParam String query,
+                                      @RequestParam(defaultValue = "title") List<String> by) {
+        log.info("Поиск фильмов по запросу: {}", query);
+        return filmService.getFilmsByParam(query, by);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteById(@PathVariable Long id) {
+        log.info("Получен HTTP-запрос на удаление фильма по id: {}", id);
+        filmService.deleteById(id);
+        log.info("Фильм с id {} успешно удалён", id);
+    }
+
+    @GetMapping("/common")
+    public List<Film> getCommonFilms(@RequestParam Long userId, @RequestParam Long friendId) {
+        log.info("Получен HTTP-запрос на получение общих фильмов пользователей с id {} и id {}", userId, friendId);
+        List<Film> films = filmService.getCommonFilms(userId, friendId);
+        log.info("HTTP-запрос на получение общих фильмов успешно обработан");
+        return films;
     }
 }
+

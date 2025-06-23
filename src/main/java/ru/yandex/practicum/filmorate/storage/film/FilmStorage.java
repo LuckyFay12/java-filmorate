@@ -12,4 +12,16 @@ public interface FilmStorage {
     Film update(Film film);
 
     Film getById(Long id);
+
+    List<Film> getFilmsByDirectorId(Long directorId, String sortedBy);
+
+    List<Film> getFilmsByParam(String queryLowerCase, boolean searchByTitle, boolean searchByDirector);
+
+    List<Film> getPopularFilms(int count, Long genreId, Integer year);
+
+    void deleteById(Long id);
+
+    List<Film> getCommonFilms(Long userId, Long friendId);
+
+    List<Film> getRecommendations(Long userId);
 }

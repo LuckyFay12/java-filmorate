@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.annotations.MinDate;
 
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Data
@@ -28,4 +29,6 @@ public class Film {
     private RatingMPA mpa;
     @Builder.Default
     private Set<Genre> genres = new HashSet<>();
+    @Builder.Default
+    private Set<Director> directors = new LinkedHashSet<>();
 }
